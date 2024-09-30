@@ -1,0 +1,86 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id        String     @id @default(uuid())
+    username  String     @unique
+    email     String     @unique
+    password  String
+    bio       String?
+    avatarUrl String?
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+    posts     Post[]
+    replies   Reply[]
+    likes     Like[]
+    bookmarks Bookmark[]
+    settings  Setting?
+
+    followers     Follow[] @relation("Followed")
+    followedUsers Follow[] @relation("Follower")
+}
+
+model Follow {
+    id         String   @id @default(uuid())
+    followerId String
+    followedId String
+    createdAt  DateTime @default(now())
+
+    follower User @relation("Follower", fields: [followerId], references: [id])
+    followed User @relation("Followed", fields: [followedId], references: [id])
+}
+
+model Post {
+    id        String     @id @default(uuid())
+    content   String
+    imageUrl  String?
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+    authorId  String
+    author    User       @relation(fields: [authorId], references: [id])
+    replies   Reply[]
+    likes     Like[]
+    bookmarks Bookmark[]
+}
+
+model Reply {
+    id        String   @id @default(uuid())
+    content   String
+    createdAt DateTime @default(now())
+    authorId  String
+    postId    String
+    author    User     @relation(fields: [authorId], references: [id])
+    post      Post     @relation(fields: [postId], references: [id])
+}
+
+model Like {
+    id        String   @id @default(uuid())
+    createdAt DateTime @default(now())
+    userId    String
+    postId    String
+    user      User     @relation(fields: [userId], references: [id])
+    post      Post     @relation(fields: [postId], references: [id])
+}
+
+model Bookmark {
+    id        String   @id @default(uuid())
+    createdAt DateTime @default(now())
+    userId    String
+    postId    String
+    user      User     @relation(fields: [userId], references: [id])
+    post      Post     @relation(fields: [postId], references: [id])
+}
+
+model Setting {
+    id            String  @id @default(uuid())
+    theme         String  @default("light")
+    notifications Boolean @default(true)
+    userId        String  @unique
+    user          User    @relation(fields: [userId], references: [id])
+}
