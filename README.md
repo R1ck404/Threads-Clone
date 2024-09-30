@@ -3,6 +3,9 @@
 ## Introduction
 This is a social media platform inspired by Threads.net, where users can create accounts, make posts, interact with content, and explore various profiles. The platform allows text posts, images (up to 4 per post), and rich user engagement features like likes, comments, bookmarks, and more. The platform is built using **Next.js**, **Prisma**, **auth.js**, and **NeonDB**.
 
+NOTE: this project is a clone of Threads.net and is intended for educational purposes only. It is not affiliated with the original Threads.net platform.
+TODO: Make it responsive for mobile devices.
+
 ## Table of Contents
 - [Introduction](#introduction)
 - [Features](#features)
