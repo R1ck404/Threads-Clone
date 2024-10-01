@@ -6,6 +6,8 @@ This is a social media platform inspired by Threads.net, where users can create 
 NOTE: this project is a clone of Threads.net and is intended for educational purposes only. It is not affiliated with the original Threads.net platform.
 TODO: Make it responsive for mobile devices.
 
+![alt text](https://github.com/R1ck404/Threads-Clone/blob/master/public/demo.png)
+
 ## Table of Contents
 - [Introduction](#introduction)
 - [Features](#features)
