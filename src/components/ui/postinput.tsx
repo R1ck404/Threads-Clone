@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { startTransition, useEffect, useRef, useState } from "react";
 import { Paperclip, XIcon } from "lucide-react";
 import createPost from "@/actions/(posts)/create_post.action";
 import { useRouter } from "next/navigation";
@@ -29,6 +29,7 @@ export default function PostInput({ session_id, username }: PostInputProps) {
     }, [imageFiles]);
 
     const createPostAction = async (event: React.FormEvent<HTMLFormElement>) => {
+        const areImagesAllowed = process.env.NEXT_PUBLIC_ALLOW_IMAGES === 'true';
         event.preventDefault();
 
         if (!session) {
@@ -43,7 +44,7 @@ export default function PostInput({ session_id, username }: PostInputProps) {
             formData.append("content", input.value || "");
         }
 
-        imageFiles.forEach((file, idx) => {
+        areImagesAllowed && imageFiles.forEach((file, idx) => {
             formData.append("image_" + idx, file, file.name);
         });
 
@@ -58,19 +59,30 @@ export default function PostInput({ session_id, username }: PostInputProps) {
             content: input?.value || '',
             authorId: session_id,
             images: imageUrls,
+        }).then(() => {
+            if (input) input.value = '';
+            setImageFiles([]);
+            setImagePreviews([]);
+
+            toast.success("Post created successfully!");
+
+            startTransition(() => {
+                router.refresh();
+            });
+        }).catch((error) => {
+            toast.error("An error occurred while creating the post.");
+            console.error(error);
         });
 
-        if (input) input.value = '';
-        setImageFiles([]);
-        setImagePreviews([]);
-
-        toast.success("Post created successfully!");
-
-        router.refresh();
     };
 
 
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (process.env.NEXT_PUBLIC_ALLOW_IMAGES !== 'true') {
+            toast.error("Image uploads are disabled on this instance.");
+            return;
+        }
+
         const files = event.target.files;
         if (files) {
             const selectedFiles = Array.from(files);
@@ -90,8 +102,13 @@ export default function PostInput({ session_id, username }: PostInputProps) {
                     <input
                         type="text"
                         placeholder="What's on your mind?"
-                        className="bg-transparent text-sm text-zinc-600 placeholder:text-zinc-600 p-0 w-full rounded"
+                        className="bg-transparent text-sm text-zinc-600 placeholder:text-zinc-600 p-0 w-full rounded focus:outline-none focus:border-blue-500"
                         ref={inputRef}
+                        min={2}
+                        max={500}
+                        minLength={2}
+                        maxLength={500}
+                        required
                     />
                 </div>
                 <button className="text-blue-500 !ml-auto" type="submit">Post</button>
@@ -105,6 +122,7 @@ export default function PostInput({ session_id, username }: PostInputProps) {
                         className="hidden"
                         multiple
                         onChange={handleImageChange}
+                        // disabled={process.env?.NEXT_PUBLIC_ALLOW_IMAGES !== 'true'}
                     />
                 </label>
                 <p className="text-sm">Anyone can reply</p>

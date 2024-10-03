@@ -60,7 +60,9 @@ export default function Post({ post_id, username, avatarUrl, likes, comments, ti
                 } else {
                     toast.success(res.success);
 
-                    router.refresh();
+                    startTransition(() => {
+                        router.push(`?refreshId=${new Date().getTime()}`)
+                    });
                 }
             });
         }
